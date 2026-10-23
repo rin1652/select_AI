@@ -82,6 +82,8 @@ Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sa
 
 Bật ô **"Chế độ ẩn"** trong Cài đặt thì popup trong suốt hoàn toàn: không nền, không viền, không chữ. Đáp án luôn nằm **ngay dưới chữ vừa bôi đen, thẳng mép trái**, nên muốn xem thì bôi đen vùng trống ngay bên dưới đó (kéo 2–3 dòng là đủ), chữ sẽ hiện lên trong vùng bôi đen.
 
+Nếu khó đoán chỗ cần bôi đen, bật thêm ô **"Viền đen mỏng cho chế độ ẩn"**: popup có một viền đen mảnh, bên trong vẫn trong suốt. Trên trang nền tối thì viền đen sẽ khó thấy.
+
 ### Chặn Ctrl/Cmd + A
 
 Mặc định extension chặn **Ctrl + A** (Windows) / **Cmd + A** (macOS) trên trang web, để lỡ tay bấm cũng không bôi đen cả trang. Trong ô nhập chữ thì phím này vẫn chọn hết chữ như bình thường. Muốn dùng lại trên cả trang thì bỏ tick ô **"Chặn Ctrl/Cmd + A"** trong Cài đặt.

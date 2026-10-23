@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS = {
   systemPrompt: DEFAULT_SYSTEM_PROMPT,
   unlockSelection: true,
   hiddenMode: false,
+  hiddenOutline: false,
   blockSelectAll: true,
 };
 

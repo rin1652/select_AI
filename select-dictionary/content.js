@@ -49,6 +49,10 @@
       border-color: transparent !important;
       box-shadow: none !important;
     }
+    /* Optional thin outline so you can see where to select. */
+    .card.hidden-mode.outline {
+      border: 1px solid #000 !important;
+    }
     .card.hidden-mode ::selection {
       color: #fff;
       background: #3a7bd5;
@@ -71,12 +75,15 @@
   let host = null;
   let requestId = 0;
   let hiddenMode = false;
+  let hiddenOutline = false;
 
-  chrome.storage.local.get({ hiddenMode: false }).then((s) => {
+  chrome.storage.local.get({ hiddenMode: false, hiddenOutline: false }).then((s) => {
     hiddenMode = s.hiddenMode;
+    hiddenOutline = s.hiddenOutline;
   });
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.hiddenMode) hiddenMode = changes.hiddenMode.newValue;
+    if (changes.hiddenOutline) hiddenOutline = changes.hiddenOutline.newValue;
   });
 
   function escapeHtml(s) {
@@ -120,6 +127,7 @@
     shadow.innerHTML = `<style>${STYLE}</style><div class="card"></div>`;
     const card = shadow.querySelector(".card");
     card.classList.toggle("hidden-mode", hiddenMode);
+    card.classList.toggle("outline", hiddenOutline);
     document.documentElement.appendChild(host);
 
     render(card, text, result || null);
