@@ -335,9 +335,8 @@
     true
   );
 
-  // Caps Lock: select the card under the mouse pointer, no click needed.
+  // Cmd/Ctrl + `: select the card under the mouse pointer, no click needed.
   let pointer = null;
-  let lastCapsLock = 0;
 
   window.addEventListener(
     "mousemove",
@@ -347,25 +346,24 @@
     { capture: true, passive: true }
   );
 
-  function onCapsLock(e) {
-    if (e.key !== "CapsLock" || !pointer || overlay) return;
-    // macOS fires keydown when Caps Lock turns on and keyup when it turns off;
-    // Windows fires both on every press. Handle one per press.
-    if (e.timeStamp - lastCapsLock < 400) return;
-    lastCapsLock = e.timeStamp;
-    if (document.activeElement?.closest?.(TEXT_FIELDS)) return;
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.code !== "Backquote" || !(e.metaKey || e.ctrlKey) || e.repeat) return;
+      if (!pointer || overlay) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
 
-    const target = document.elementFromPoint(pointer.x, pointer.y);
-    if (!target || target === host) return;
-    const card = findCard(target);
-    if (!card) return;
+      const target = document.elementFromPoint(pointer.x, pointer.y);
+      if (!target || target === host) return;
+      const card = findCard(target);
+      if (!card) return;
 
-    selectCard(card);
-    handleSelection();
-  }
-
-  window.addEventListener("keydown", onCapsLock, true);
-  window.addEventListener("keyup", onCapsLock, true);
+      selectCard(card);
+      handleSelection();
+    },
+    true
+  );
 
   // ---- Shortcut capture: drag a box around the question, AI reads the screenshot ----
 

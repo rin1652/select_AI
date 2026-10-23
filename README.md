@@ -5,7 +5,7 @@ Extension cho trình duyệt Chromium (Chrome, Brave, Edge…): **bôi đen mộ
 ## Tính năng
 
 - **Bôi đen → đáp án:** bôi đen câu hỏi (kèm các lựa chọn A/B/C/D nếu có), popup hiện đáp án ngắn gọn ngay bên dưới.
-- **Caps Lock hoặc Option/Alt + click:** bôi đen nguyên thẻ câu hỏi đang trỏ chuột vào.
+- **Cmd/Ctrl + ` hoặc Option/Alt + click:** bôi đen nguyên thẻ câu hỏi đang trỏ chuột vào.
 - **Chụp câu hỏi bằng phím tắt:** bấm phím tắt rồi click (chụp cả màn hình) hoặc kéo chuột quanh câu hỏi, AI đọc ảnh và trả lời. Cách này vẫn dùng được khi trang chặn bôi đen.
 - **Mở khoá bôi đen / copy / chuột phải** trên các trang chặn những thao tác này. Có thể tắt trong cài đặt.
 - **Hai nhà cung cấp AI:** OpenAI hoặc Google Gemini, tự chọn model, tự sửa system prompt.
@@ -70,10 +70,9 @@ Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sa
 
 ### Bôi đen cả thẻ câu hỏi
 
-- **Caps Lock:** đưa chuột vào thẻ câu hỏi rồi bấm **Caps Lock**, không cần click. Cả thẻ (câu hỏi và mọi đáp án) được bôi đen và gửi cho AI ngay. Bấm khi đang gõ trong ô nhập chữ thì không có tác dụng.
+- **Cmd + `** (macOS) / **Ctrl + `** (Windows): đưa chuột vào thẻ câu hỏi rồi bấm tổ hợp này (phím ` nằm ngay dưới Esc), không cần click. Cả thẻ (câu hỏi và mọi đáp án) được bôi đen và gửi cho AI ngay. Trên Mac, nếu Cmd + ` bị macOS dùng để chuyển cửa sổ thì bấm **Ctrl + `** thay thế.
 - **Option/Alt + click:** giữ **Option** (macOS) hoặc **Alt** (Windows) rồi click vào thẻ. Cú click này không tick vào đáp án và không mở link.
 
-> Trên macOS, nếu Caps Lock đang được dùng để chuyển bộ gõ (System Settings → Keyboard → Input Sources → "Use Caps Lock to switch…"), mỗi lần bấm cũng sẽ đổi bộ gõ, nên hãy dùng Option + click.
 - Bôi đen bằng bàn phím (Shift + phím mũi tên) cũng được.
 
 ### Chế độ ẩn
