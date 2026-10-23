@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
   model: FALLBACK_MODELS.openai[0],
   systemPrompt: DEFAULT_SYSTEM_PROMPT,
   unlockSelection: true,
+  hiddenMode: false,
 };
 
 function loadSettings() {

@@ -46,6 +46,19 @@
     }
     .vi-label { font-size: 12px; color: #888; margin-right: 4px; }
     .muted { color: #888; font-size: 14px; margin-top: 6px; }
+
+    /* Invisible mode: nothing shows until the user selects text inside the popup. */
+    .card.hidden-mode,
+    .card.hidden-mode * {
+      color: transparent !important;
+      background: transparent !important;
+      border-color: transparent !important;
+      box-shadow: none !important;
+    }
+    .card.hidden-mode ::selection {
+      color: #fff;
+      background: #3a7bd5;
+    }
     .ai-label { font-size: 12px; color: #7a6a00; text-transform: uppercase; letter-spacing: 0.04em; }
     .answer { margin-top: 6px; white-space: pre-wrap; word-break: break-word; max-height: 50vh; overflow: auto; }
     .error { margin-top: 6px; color: #c0362c; font-size: 14px; }
@@ -64,6 +77,14 @@
 
   let host = null;
   let requestId = 0;
+  let hiddenMode = false;
+
+  chrome.storage.local.get({ hiddenMode: false }).then((s) => {
+    hiddenMode = s.hiddenMode;
+  });
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.hiddenMode) hiddenMode = changes.hiddenMode.newValue;
+  });
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({
@@ -105,6 +126,7 @@
     const shadow = host.attachShadow({ mode: "open" });
     shadow.innerHTML = `<style>${STYLE}</style><div class="card"></div>`;
     const card = shadow.querySelector(".card");
+    card.classList.toggle("hidden-mode", hiddenMode);
     document.documentElement.appendChild(host);
 
     render(card, text, result || null);

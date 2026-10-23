@@ -68,6 +68,10 @@ Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sa
 - Đóng popup: bấm **×**, click ra ngoài, nhấn **Esc** hoặc cuộn trang.
 - Bôi đen bằng bàn phím (Shift + phím mũi tên) cũng được.
 
+### Chế độ ẩn
+
+Bật ô **"Chế độ ẩn"** trong Cài đặt thì popup trong suốt hoàn toàn: không nền, không viền, không chữ. Đáp án luôn nằm **ngay dưới chữ vừa bôi đen, thẳng mép trái**, nên muốn xem thì bôi đen vùng trống ngay bên dưới đó (kéo 2–3 dòng là đủ), chữ sẽ hiện lên trong vùng bôi đen.
+
 ### Phím tắt chụp câu hỏi
 
 | Hệ điều hành | Phím tắt mặc định |

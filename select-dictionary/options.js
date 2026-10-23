@@ -28,6 +28,7 @@ function currentForm() {
     model: $("model").value,
     systemPrompt: $("systemPrompt").value.trim() || DEFAULT_SYSTEM_PROMPT,
     unlockSelection: $("unlockSelection").checked,
+    hiddenMode: $("hiddenMode").checked,
   };
 }
 
@@ -104,5 +105,6 @@ loadSettings().then((s) => {
   $("apiKey").value = s.apiKey;
   $("systemPrompt").value = s.systemPrompt;
   $("unlockSelection").checked = s.unlockSelection;
+  $("hiddenMode").checked = s.hiddenMode;
   fillModels(FALLBACK_MODELS[s.provider], s.model);
 });
