@@ -1,4 +1,8 @@
-// OpenAI / Gemini calls, shared by the background worker and the options page.
+// OpenAI / ShopAIKey / Gemini calls, shared by the background worker and the options page.
+const OPENAI_BASE_URLS = {
+  openai: "https://api.openai.com/v1",
+  shopaikey: "https://api.shopaikey.com/v1",
+};
 
 async function readError(res) {
   try {
@@ -9,14 +13,14 @@ async function readError(res) {
   }
 }
 
-async function askOpenAI({ apiKey, model, systemPrompt }, text, image) {
+async function askOpenAI({ provider = "openai", apiKey, model, systemPrompt }, text, image) {
   const content = image
     ? [
         { type: "text", text },
         { type: "image_url", image_url: { url: `data:image/png;base64,${image}` } },
       ]
     : text;
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch(`${OPENAI_BASE_URLS[provider]}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +85,7 @@ async function listModels(provider, apiKey) {
       .sort();
   }
 
-  const res = await fetch("https://api.openai.com/v1/models", {
+  const res = await fetch(`${OPENAI_BASE_URLS[provider]}/models`, {
     headers: { Authorization: `Bearer ${apiKey}` },
   });
   if (!res.ok) throw new Error(await readError(res));

@@ -7,7 +7,7 @@ Extension cho trình duyệt Chromium (Chrome, Brave, Edge…): **bôi đen mộ
 - **Bôi đen → đáp án:** bôi đen câu hỏi (kèm các lựa chọn A/B/C/D nếu có), popup hiện đáp án ngắn gọn ngay bên dưới.
 - **Chụp vùng câu hỏi bằng phím tắt:** bấm phím tắt, kéo chuột quanh câu hỏi, AI đọc ảnh và trả lời. Cách này vẫn dùng được khi trang chặn bôi đen.
 - **Mở khoá bôi đen / copy / chuột phải** trên các trang chặn những thao tác này. Có thể tắt trong cài đặt.
-- **Hai nhà cung cấp AI:** OpenAI hoặc Google Gemini, tự chọn model, tự sửa system prompt.
+- **Ba nhà cung cấp AI:** OpenAI, ShopAIKey (tương thích OpenAI) hoặc Google Gemini, tự chọn model, tự sửa system prompt.
 - **Chế độ từ điển:** nếu chưa nhập API key, bôi đen một từ tiếng Anh sẽ hiện nghĩa, phiên âm, nút phát âm và bản dịch tiếng Việt.
 
 ## Cài đặt
@@ -46,12 +46,15 @@ Sau bước này bạn có một thư mục tên **`select-dictionary`** bên tr
 ### 3. Nhập API key
 
 1. Bấm vào icon **Select Dictionary** để mở trang **Cài đặt**.
-2. Chọn **Nhà cung cấp**: OpenAI hoặc Google (Gemini).
+2. Chọn **Nhà cung cấp**: OpenAI, ShopAIKey hoặc Google (Gemini).
 3. Dán **API key**:
    - OpenAI: lấy tại <https://platform.openai.com/api-keys>
+   - ShopAIKey: lấy tại <https://shopaikey.com> rồi dán vào ô **API key**; extension dùng sẵn Base URL `https://api.shopaikey.com/v1`.
    - Google Gemini: lấy tại <https://aistudio.google.com/apikey>
 4. Bấm **Tải danh sách** rồi chọn **Model**. Nên chọn model đọc được ảnh nếu muốn dùng phím tắt chụp, ví dụ `gpt-5-mini`, `gpt-4o-mini`, `gemini-2.5-flash`.
 5. Bấm **Lưu**, sau đó bấm **Thử kết nối** để kiểm tra.
+
+Với **ShopAIKey**, model cấu hình sẵn là `gpt-6.1-sol`, có thể chọn và lưu ngay mà không cần tải danh sách. Model khả dụng phụ thuộc vào quyền truy cập của key. Nếu báo không có model hoặc không có quyền truy cập, bấm **Tải danh sách** để chọn model mà key thực sự hỗ trợ. Chức năng chụp câu hỏi cần model hỗ trợ ảnh.
 
 > API key chỉ được lưu trong trình duyệt trên máy bạn, không nằm trong code hay file zip.
 
@@ -104,7 +107,7 @@ Cài đặt và API key vẫn được giữ nguyên. Nếu bạn **Remove** ext
 
 ## Quyền riêng tư
 
-- Chữ được bôi đen, hoặc ảnh vùng được chụp, được gửi tới nhà cung cấp AI bạn đã chọn (OpenAI hoặc Google) bằng API key của chính bạn.
+- Chữ được bôi đen, hoặc ảnh vùng được chụp, được gửi tới nhà cung cấp AI bạn đã chọn (OpenAI, ShopAIKey hoặc Google) bằng API key của chính bạn. Khi chọn ShopAIKey, API key và nội dung được gửi qua máy chủ trung gian ShopAIKey.
 - Khi chưa có API key, chữ được bôi đen được gửi tới [dictionaryapi.dev](https://dictionaryapi.dev) và Google Translate để tra từ.
 - Extension không có máy chủ riêng và không thu thập dữ liệu.
 
@@ -116,8 +119,12 @@ select-dictionary/
 ├── background.js   # Gọi API, chụp màn hình, xử lý phím tắt
 ├── content.js      # Bắt bôi đen, khung chụp, popup đáp án
 ├── unlock.js       # Mở khoá bôi đen / copy / chuột phải
-├── llm.js          # Gọi OpenAI / Gemini (văn bản + ảnh)
+├── llm.js          # Gọi OpenAI / ShopAIKey / Gemini (văn bản + ảnh)
 ├── settings.js     # Giá trị mặc định, system prompt
 ├── options.html    # Trang cài đặt
 └── options.js
 ```
+
+## Kiểm tra code
+
+Trong thư mục repo, chạy `node --test tests/llm.test.cjs` (Node.js 18+). Các kiểm tra dùng API giả lập, không cần key và không phát sinh phí.
