@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Select Dictionary – Cài đặt</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f6f6f3;
+      color: #1a1a1a;
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    main {
+      max-width: 560px;
+      margin: 40px auto;
+      padding: 28px 32px;
+      background: #fff;
+      border: 1px solid #e3e3dc;
+      border-radius: 10px;
+    }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .sub { color: #666; margin: 0 0 24px; }
+    label { display: block; font-weight: 600; margin: 18px 0 6px; }
+    .hint { font-weight: 400; color: #777; font-size: 13px; }
+    select, input, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 9px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font: inherit;
+      background: #fff;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    label.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; cursor: pointer; }
+    label.check input { width: auto; margin: 4px 0 0; }
+    kbd {
+      flex: 1;
+      padding: 9px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f6f6f3;
+      font: 600 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .row { display: flex; gap: 8px; }
+    .row select { flex: 1; }
+    button {
+      padding: 9px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fff;
+      font: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .actions { display: flex; gap: 8px; align-items: center; margin-top: 24px; }
+    #status { font-size: 14px; }
+    .ok { color: #1a7f37; }
+    .err { color: #c0362c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Cài đặt</h1>
+    <p class="sub">Bôi đen một câu hỏi trên trang là AI sẽ trả lời ngắn gọn. Để trống API key thì extension tra từ điển như cũ.</p>
+
+    <label for="provider">Nhà cung cấp</label>
+    <select id="provider">
+      <option value="openai">OpenAI</option>
+      <option value="google">Google (Gemini)</option>
+    </select>
+
+    <label for="apiKey">API key <span class="hint" id="keyHint"></span></label>
+    <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Dán API key vào đây">
+
+    <label for="model">Model</label>
+    <div class="row">
+      <select id="model"></select>
+      <button id="loadModels" type="button" title="Lấy danh sách model từ tài khoản của bạn">Tải danh sách</button>
+    </div>
+
+    <label for="systemPrompt">System prompt <span class="hint">(hướng dẫn cho AI)</span></label>
+    <textarea id="systemPrompt"></textarea>
+
+    <label class="check">
+      <input id="unlockSelection" type="checkbox">
+      <span>Mở khoá bôi đen, copy và chuột phải <span class="hint">trên các trang chặn những thao tác này</span></span>
+    </label>
+
+    <label>Phím tắt chụp câu hỏi <span class="hint">(dùng khi trang chặn bôi đen: bấm phím tắt, kéo chuột quanh câu hỏi, AI đọc ảnh và trả lời; model cần hỗ trợ ảnh)</span></label>
+    <div class="row">
+      <kbd id="shortcut">…</kbd>
+      <button id="editShortcut" type="button">Đổi phím tắt</button>
+    </div>
+
+    <div class="actions">
+      <button id="save" class="primary" type="button">Lưu</button>
+      <button id="test" type="button">Thử kết nối</button>
+      <button id="resetPrompt" type="button">Khôi phục prompt mặc định</button>
+    </div>
+    <p id="status"></p>
+  </main>
+  <script src="settings.js"></script>
+  <script src="llm.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

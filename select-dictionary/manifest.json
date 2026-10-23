@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "Select Dictionary",
+  "version": "1.3.2",
+  "description": "Bôi đen câu hỏi để AI (OpenAI/Gemini) trả lời ngắn gọn, hoặc tra từ điển khi chưa có API key.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://api.dictionaryapi.dev/*",
+    "https://translate.googleapis.com/*",
+    "https://api.openai.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "action": {
+    "default_title": "Cài đặt Select Dictionary"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "commands": {
+    "capture-question": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Chụp vùng câu hỏi trên màn hình để AI trả lời"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "unlock.js"
+      ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ]
+}
