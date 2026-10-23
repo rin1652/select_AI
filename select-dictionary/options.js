@@ -29,6 +29,7 @@ function currentForm() {
     systemPrompt: $("systemPrompt").value.trim() || DEFAULT_SYSTEM_PROMPT,
     unlockSelection: $("unlockSelection").checked,
     hiddenMode: $("hiddenMode").checked,
+    blockSelectAll: $("blockSelectAll").checked,
   };
 }
 
@@ -106,5 +107,6 @@ loadSettings().then((s) => {
   $("systemPrompt").value = s.systemPrompt;
   $("unlockSelection").checked = s.unlockSelection;
   $("hiddenMode").checked = s.hiddenMode;
+  $("blockSelectAll").checked = s.blockSelectAll;
   fillModels(FALLBACK_MODELS[s.provider], s.model);
 });

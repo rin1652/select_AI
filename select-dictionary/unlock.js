@@ -2,6 +2,7 @@
 // Runs at document_start so our window capture listeners fire before the page's.
 (() => {
   let enabled = true;
+  let blockSelectAll = true;
 
   const BLOCKED_EVENTS = ["selectstart", "copy", "cut", "contextmenu", "dragstart"];
   const COPY_KEYS = new Set(["a", "c", "x"]);
@@ -35,12 +36,23 @@
     );
   }
 
+  const TEXT_FIELDS =
+    'input:not([type="radio"]):not([type="checkbox"]), textarea, [contenteditable]';
+
   window.addEventListener(
     "keydown",
     (e) => {
-      if (enabled && (e.ctrlKey || e.metaKey) && COPY_KEYS.has(e.key.toLowerCase())) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const key = e.key.toLowerCase();
+
+      // Ctrl/Cmd + A outside text fields does nothing, so a slip of the
+      // finger can't highlight (and send) the whole page.
+      if (blockSelectAll && key === "a" && !e.target.closest?.(TEXT_FIELDS)) {
+        e.preventDefault();
         e.stopImmediatePropagation();
+        return;
       }
+      if (enabled && COPY_KEYS.has(key)) e.stopImmediatePropagation();
     },
     true
   );
@@ -49,8 +61,9 @@
   // Pages often swap out <head> contents while loading; re-attach once it's ready.
   document.addEventListener("DOMContentLoaded", applyCss);
 
-  chrome.storage.local.get({ unlockSelection: true }).then((s) => {
+  chrome.storage.local.get({ unlockSelection: true, blockSelectAll: true }).then((s) => {
     enabled = s.unlockSelection;
+    blockSelectAll = s.blockSelectAll;
     applyCss();
   });
 
@@ -59,5 +72,6 @@
       enabled = changes.unlockSelection.newValue;
       applyCss();
     }
+    if (changes.blockSelectAll) blockSelectAll = changes.blockSelectAll.newValue;
   });
 })();
