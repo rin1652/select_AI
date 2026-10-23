@@ -5,6 +5,7 @@ Extension cho trình duyệt Chromium (Chrome, Brave, Edge…): **bôi đen mộ
 ## Tính năng
 
 - **Bôi đen → đáp án:** bôi đen câu hỏi (kèm các lựa chọn A/B/C/D nếu có), popup hiện đáp án ngắn gọn ngay bên dưới.
+- **Option/Alt + click:** bôi đen nguyên thẻ câu hỏi chỉ với một click.
 - **Chụp câu hỏi bằng phím tắt:** bấm phím tắt rồi click (chụp cả màn hình) hoặc kéo chuột quanh câu hỏi, AI đọc ảnh và trả lời. Cách này vẫn dùng được khi trang chặn bôi đen.
 - **Mở khoá bôi đen / copy / chuột phải** trên các trang chặn những thao tác này. Có thể tắt trong cài đặt.
 - **Hai nhà cung cấp AI:** OpenAI hoặc Google Gemini, tự chọn model, tự sửa system prompt.
@@ -66,6 +67,10 @@ Các tab đã mở từ trước khi cài cần được tải lại (F5) thì t
 Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sau vài giây sẽ hiện đáp án.
 
 - Đóng popup: click ra ngoài, nhấn **Esc** hoặc cuộn trang.
+
+### Bôi đen cả thẻ câu hỏi bằng một click
+
+Giữ **Option** (macOS) hoặc **Alt** (Windows) rồi **click** vào bất kỳ chỗ nào trong thẻ câu hỏi: tiêu đề, một đáp án hay khoảng trống. Cả thẻ (câu hỏi và mọi đáp án) sẽ được bôi đen và gửi cho AI ngay. Cú click này không tick vào đáp án và không mở link.
 - Bôi đen bằng bàn phím (Shift + phím mũi tên) cũng được.
 
 ### Chế độ ẩn

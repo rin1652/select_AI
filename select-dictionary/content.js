@@ -262,6 +262,70 @@
 
   window.addEventListener("scroll", () => host && closePopup(), true);
 
+  // ---- Alt/Option + click: select the whole card (question + options) ----
+
+  const CARD_MAX_TEXT = 1500;
+
+  function looksLikeCard(el) {
+    const style = getComputedStyle(el);
+    if (style.display.startsWith("inline")) return false;
+    const hasBorder = ["Top", "Right", "Bottom", "Left"].some(
+      (side) => parseFloat(style[`border${side}Width`]) > 0 && style[`border${side}Style`] !== "none"
+    );
+    const hasShadow = style.boxShadow !== "none";
+    const hasBackground =
+      style.backgroundColor !== "rgba(0, 0, 0, 0)" &&
+      style.backgroundColor !== getComputedStyle(el.parentElement || el).backgroundColor;
+    return hasBorder || hasShadow || hasBackground;
+  }
+
+  // Outermost card-like ancestor that still holds a reasonable amount of text,
+  // so a click on an option picks the whole question card around it.
+  function findCard(target) {
+    let best = null;
+    let fallback = null;
+    for (let el = target; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      const text = el.innerText?.trim() || "";
+      if (text.length > CARD_MAX_TEXT || el.offsetHeight > window.innerHeight * 0.9) break;
+      if (!fallback && text && !getComputedStyle(el).display.startsWith("inline")) fallback = el;
+      if (text && looksLikeCard(el)) best = el;
+    }
+    return best || fallback;
+  }
+
+  window.addEventListener(
+    "mousedown",
+    (e) => {
+      if (!e.altKey || e.button !== 0 || overlay) return;
+      if (host && e.composedPath().includes(host)) return;
+      const card = findCard(e.target);
+      if (!card) return;
+
+      // Keep the page from reacting (ticking a radio, following a link…).
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      const range = document.createRange();
+      range.selectNodeContents(card);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      // The mouseup listener above opens the popup for this selection.
+    },
+    true
+  );
+
+  window.addEventListener(
+    "click",
+    (e) => {
+      if (e.altKey && !(host && e.composedPath().includes(host))) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    },
+    true
+  );
+
   // ---- Shortcut capture: drag a box around the question, AI reads the screenshot ----
 
   // Invisible layer: the only sign of capture mode is the crosshair cursor.
