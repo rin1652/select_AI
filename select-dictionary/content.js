@@ -13,10 +13,8 @@
   function shortcutPressed(e, name) {
     const sc = shortcuts[name];
     if (!SDShortcuts.matches(e, sc)) return false;
-    // In text fields, Control-only (Mac) or unmodified combos are editing keys; leave them.
-    const inTextField = e.target.closest?.("input, textarea, [contenteditable]");
-    const editingKey = !sc.shift && !sc.alt && !sc.meta && (SDShortcuts.IS_MAC || !sc.ctrl);
-    return !(inTextField && editingKey);
+    // Never steal keys while the user is typing (undo, redo, caret moves…).
+    return !e.target.closest?.("input, textarea, [contenteditable]");
   }
 
   const STYLE = `
@@ -124,6 +122,8 @@
   function closePopup() {
     requestId++;
     anchor = null;
+    highlightWhenDone = false;
+    answerPending = false;
     // Disconnecting aborts the AI request, so an abandoned popup stops costing tokens.
     port?.disconnect();
     port = null;
@@ -167,6 +167,10 @@
           return { left: rect.left + dx, right: rect.right + dx, top: rect.top + dy, bottom: rect.bottom + dy };
         };
     const text = message?.text || "";
+    // Remember where the question lives, for "highlight the matching option".
+    questionNode = anchorRange
+      ? anchorRange.commonAncestorContainer
+      : document.elementFromPoint((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2);
 
     host = document.createElement("div");
     const shadow = host.attachShadow({ mode: "open" });
@@ -183,6 +187,7 @@
     if (result) return;
 
     const id = ++requestId;
+    answerPending = true;
     const delay = message.type === "lookup" ? SEND_DELAY_MS : 0;
     setTimeout(() => {
       if (id !== requestId || !host) return;
@@ -203,6 +208,11 @@
         position(card, anchor());
         port.disconnect();
         port = null;
+        answerPending = false;
+        if (highlightWhenDone) {
+          highlightWhenDone = false;
+          highlightBestOption();
+        }
       });
       port.postMessage(message);
     }, delay);
@@ -469,6 +479,104 @@
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(range);
+    },
+    true
+  );
+
+  // ---- Highlight the option that best matches the AI answer ----
+
+  let questionNode = null;
+  let highlightWhenDone = false;
+  let answerPending = false; // a question was asked and its answer isn't complete yet
+
+  const OPTION_LABEL = /^\s*\(?([a-h])\s*[.):]\s*/i;
+
+  // The answer's option letter, if it names one: "C", "C. …", "Đáp án: C".
+  function answerLetter(answer) {
+    const m =
+      answer.match(/^\s*\(?([a-h])\s*(?:[.):]|$)/i) ||
+      answer.match(/(?:đáp án|answer)\s*(?:đúng)?\s*(?:là)?\s*:?\s*\(?([a-h])\b/i);
+    return m ? m[1].toLowerCase() : null;
+  }
+
+  function normalize(text) {
+    return text
+      .toLowerCase()
+      .replace(OPTION_LABEL, "")
+      .replace(/[\p{P}\p{S}]/gu, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Dice coefficient over character bigrams: 1 = same text, 0 = nothing shared.
+  function similarity(a, b) {
+    if (!a || !b) return 0;
+    if (a === b) return 1;
+    const grams = (s) => {
+      const counts = new Map();
+      for (let i = 0; i < s.length - 1; i++) {
+        const g = s.slice(i, i + 2);
+        counts.set(g, (counts.get(g) || 0) + 1);
+      }
+      return counts;
+    };
+    const ga = grams(a);
+    const gb = grams(b);
+    let shared = 0;
+    for (const [g, n] of ga) shared += Math.min(n, gb.get(g) || 0);
+    return (2 * shared) / (a.length - 1 + (b.length - 1)) || 0;
+  }
+
+  // Option elements inside a question card: radio/checkbox rows, list items,
+  // or blocks that start with "A." / "B)" style labels.
+  function findOptions(card) {
+    const inputs = card.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+    let options = [...inputs].map((i) => i.closest("label") || i.parentElement);
+    if (!options.length) options = [...card.querySelectorAll("li")];
+    if (!options.length) {
+      options = [...card.querySelectorAll("*")].filter(
+        (el) =>
+          OPTION_LABEL.test(el.innerText || "") &&
+          ![...el.children].some((child) => OPTION_LABEL.test(child.innerText || ""))
+      );
+    }
+    return [...new Set(options)].filter((el) => el && el.innerText?.trim());
+  }
+
+  function highlightBestOption() {
+    if (!lastAnswer || !questionNode) return;
+    const start = questionNode.nodeType === 1 ? questionNode : questionNode.parentElement;
+    const card = start && findCard(start);
+    if (!card) return;
+    const options = findOptions(card);
+    if (!options.length) return;
+
+    const letter = answerLetter(lastAnswer);
+    const answer = normalize(lastAnswer);
+    let best = null;
+    let bestScore = -1;
+    for (const option of options) {
+      const text = option.innerText.trim();
+      const optionLetter = text.match(OPTION_LABEL)?.[1].toLowerCase();
+      // Matching letter weighs most; text similarity decides otherwise (and breaks ties).
+      const score = similarity(answer, normalize(text)) + (letter && optionLetter === letter ? 1 : 0);
+      if (score > bestScore) {
+        best = option;
+        bestScore = score;
+      }
+    }
+    selectCard(best);
+  }
+
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      if (!shortcutPressed(e, "highlightMatch")) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      // Still waiting for the AI: highlight as soon as the answer is complete.
+      if (answerPending) highlightWhenDone = true;
+      else highlightBestOption();
     },
     true
   );

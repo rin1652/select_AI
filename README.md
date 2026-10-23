@@ -89,6 +89,14 @@ Bấm **Control + C** (macOS) / **Ctrl + Shift + C** (Windows) để copy câu t
 
 Bấm **Control + A** (macOS) / **Ctrl + Shift + A** (Windows) để bôi đen câu trả lời trong popup. Ở chế độ ẩn, đây là cách nhanh nhất để hiện đáp án mà không phải đoán chỗ kéo chuột.
 
+### Bôi đen lựa chọn đúng
+
+Bấm **Control + Z** (macOS) / **Ctrl + Shift + Z** (Windows) để extension tìm trong thẻ câu hỏi lựa chọn **giống đáp án AI nhất** rồi bôi đen lựa chọn đó. Nếu AI còn đang trả lời, extension chờ trả lời xong rồi mới bôi đen.
+
+- So sánh theo độ giống, không cần khớp từng chữ: AI ghi "C", "Đáp án: C", "C. …" hay chỉ diễn đạt lại ý của lựa chọn đều nhận ra được.
+- Chỉ bôi đen, không tick vào lựa chọn. Anh tự click để chọn.
+- Lựa chọn được nhận ra qua ô radio/checkbox, danh sách, hoặc dòng bắt đầu bằng "A." / "B)"…
+
 ### Chế độ ẩn
 
 Bật ô **"Chế độ ẩn"** trong Cài đặt thì popup trong suốt hoàn toàn: không nền, không viền, không chữ. Đáp án luôn nằm **ngay dưới chữ vừa bôi đen, thẳng mép trái**, nên muốn xem thì bôi đen vùng trống ngay bên dưới đó (kéo 2–3 dòng là đủ), chữ sẽ hiện lên trong vùng bôi đen.
@@ -125,6 +133,7 @@ Mọi phím tắt đều đổi được trong trang **Cài đặt → Phím t�
 | Bôi đen nguyên thẻ câu hỏi đang trỏ chuột | Cmd + ` | Ctrl + ` |
 | Bôi đen đáp án trong popup | Control + A | Ctrl + Shift + A |
 | Copy đáp án | Control + C | Ctrl + Shift + C |
+| Bôi đen lựa chọn giống đáp án AI nhất | Control + Z | Ctrl + Shift + Z |
 | Giữ khi click để bôi đen nguyên thẻ | Option | Alt |
 | Chụp câu hỏi | Cmd + Shift + S | Ctrl + Shift + S |
 

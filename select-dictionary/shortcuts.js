@@ -21,11 +21,13 @@ globalThis.SDShortcuts ??= (() => {
           selectCard: combo("Backquote", "`", { meta: true }),
           selectAnswer: combo("KeyA", "a", { ctrl: true }),
           copyAnswer: combo("KeyC", "c", { ctrl: true }),
+          highlightMatch: combo("KeyZ", "z", { ctrl: true }),
         }
       : {
           selectCard: combo("Backquote", "`", { ctrl: true }),
           selectAnswer: combo("KeyA", "a", { ctrl: true, shift: true }),
           copyAnswer: combo("KeyC", "c", { ctrl: true, shift: true }),
+          highlightMatch: combo("KeyZ", "z", { ctrl: true, shift: true }),
         };
   }
 
