@@ -264,29 +264,14 @@
 
   // ---- Shortcut capture: drag a box around the question, AI reads the screenshot ----
 
+  // Invisible layer: the only sign of capture mode is the crosshair cursor.
   const OVERLAY_STYLE = `
     :host { all: initial; }
     .layer {
       position: fixed; inset: 0;
       z-index: 2147483647;
       cursor: crosshair;
-      background: rgba(0, 0, 0, 0.25);
-    }
-    .tip {
-      position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
-      padding: 8px 14px;
-      background: #1a1a1a; color: #fff;
-      border-radius: 999px;
-      font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-    .box {
-      position: fixed; display: none;
-      border: 2px dashed #3a7bd5;
-      background: rgba(58, 123, 213, 0.15);
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.25);
-      pointer-events: none;
+      background: transparent;
     }
   `;
 
@@ -308,14 +293,10 @@
     const shadow = overlay.attachShadow({ mode: "open" });
     shadow.innerHTML = `
       <style>${OVERLAY_STYLE}</style>
-      <div class="layer">
-        <div class="tip">Kéo chuột quanh câu hỏi · Click để chụp cả màn hình · Esc để huỷ</div>
-        <div class="box"></div>
-      </div>`;
+      <div class="layer"></div>`;
     document.documentElement.appendChild(overlay);
 
     const layer = shadow.querySelector(".layer");
-    const box = shadow.querySelector(".box");
     let start = null;
 
     const boxRect = (e) => ({
@@ -329,19 +310,6 @@
       e.preventDefault();
       start = { x: e.clientX, y: e.clientY };
       layer.setPointerCapture(e.pointerId);
-    });
-
-    layer.addEventListener("pointermove", (e) => {
-      if (!start) return;
-      const r = boxRect(e);
-      Object.assign(box.style, {
-        display: "block",
-        left: `${r.left}px`,
-        top: `${r.top}px`,
-        width: `${r.width}px`,
-        height: `${r.height}px`,
-      });
-      layer.style.background = "transparent";
     });
 
     layer.addEventListener("pointerup", (e) => {

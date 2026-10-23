@@ -5,7 +5,7 @@ Extension cho trình duyệt Chromium (Chrome, Brave, Edge…): **bôi đen mộ
 ## Tính năng
 
 - **Bôi đen → đáp án:** bôi đen câu hỏi (kèm các lựa chọn A/B/C/D nếu có), popup hiện đáp án ngắn gọn ngay bên dưới.
-- **Chụp vùng câu hỏi bằng phím tắt:** bấm phím tắt, kéo chuột quanh câu hỏi, AI đọc ảnh và trả lời. Cách này vẫn dùng được khi trang chặn bôi đen.
+- **Chụp câu hỏi bằng phím tắt:** bấm phím tắt rồi click (chụp cả màn hình) hoặc kéo chuột quanh câu hỏi, AI đọc ảnh và trả lời. Cách này vẫn dùng được khi trang chặn bôi đen.
 - **Mở khoá bôi đen / copy / chuột phải** trên các trang chặn những thao tác này. Có thể tắt trong cài đặt.
 - **Hai nhà cung cấp AI:** OpenAI hoặc Google Gemini, tự chọn model, tự sửa system prompt.
 - **Chế độ từ điển:** nếu chưa nhập API key, bôi đen một từ tiếng Anh sẽ hiện nghĩa, phiên âm, nút phát âm và bản dịch tiếng Việt.
@@ -79,8 +79,10 @@ Bật ô **"Chế độ ẩn"** trong Cài đặt thì popup trong suốt hoàn 
 | macOS | **Cmd + Shift + S** |
 | Windows | **Ctrl + Shift + S** |
 
-1. Bấm phím tắt. Màn hình tối lại và con trỏ chuyển thành dấu **+**.
-2. **Kéo chuột** thành khung bao quanh câu hỏi và các đáp án. Nếu chỉ **click** mà không kéo, extension sẽ chụp toàn bộ phần đang hiển thị trên màn hình.
+1. Bấm phím tắt. Màn hình giữ nguyên, chỉ có con trỏ chuột chuyển thành dấu **+**.
+2. Chọn vùng cần chụp:
+   - **Click** một cái: chụp toàn bộ phần đang hiển thị trên màn hình.
+   - **Kéo chuột** từ góc này sang góc kia của câu hỏi: chỉ chụp vùng đó. Khi kéo sẽ không hiện khung, nên hãy kéo rộng ra một chút cho chắc.
 3. Đợi AI đọc ảnh và hiện đáp án.
 
 Nhấn **Esc** để huỷ.
