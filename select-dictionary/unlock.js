@@ -52,7 +52,8 @@
         e.stopImmediatePropagation();
         return;
       }
-      if (enabled && COPY_KEYS.has(key)) e.stopImmediatePropagation();
+      // Shift/Alt combos aren't copy/cut/select-all; leave them for our other shortcuts.
+      if (enabled && !e.shiftKey && !e.altKey && COPY_KEYS.has(key)) e.stopImmediatePropagation();
     },
     true
   );

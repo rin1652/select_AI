@@ -76,6 +76,7 @@
   let host = null;
   let requestId = 0;
   let hiddenMode = false;
+  let lastAnswer = "";
   let hiddenOutline = false;
 
   chrome.storage.local.get({ hiddenMode: false, hiddenOutline: false }).then((s) => {
@@ -194,6 +195,7 @@
   }
 
   function renderAnswer(card, res) {
+    if (res.answer && !res.error) lastAnswer = res.answer;
     const body = res.error
       ? `<div class="error">Lỗi: ${escapeHtml(res.error)}</div>
          <button class="settings">Mở cài đặt</button>`
@@ -344,6 +346,35 @@
     true
   );
 
+  // Ctrl + Shift + C: copy the latest AI answer to the clipboard.
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Clipboard API can be blocked (no focus, permissions policy): fall back.
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+      document.documentElement.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+  }
+
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      const isC = e.code === "KeyC" || e.key?.toLowerCase() === "c";
+      if (!isC || !e.ctrlKey || !e.shiftKey || e.altKey || e.metaKey) return;
+      if (!lastAnswer) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      copyText(lastAnswer);
+    },
+    true
+  );
+
   // Cmd/Ctrl + `: select the card under the mouse pointer, no click needed.
   let pointer = null;
 
@@ -358,7 +389,8 @@
   window.addEventListener(
     "keydown",
     (e) => {
-      if (e.code !== "Backquote" || !(e.metaKey || e.ctrlKey) || e.repeat) return;
+      const isBackquote = e.code === "Backquote" || e.key === "`";
+      if (!isBackquote || !(e.metaKey || e.ctrlKey) || e.repeat) return;
       if (!pointer || overlay) return;
       e.preventDefault();
       e.stopImmediatePropagation();
