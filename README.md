@@ -82,6 +82,10 @@ Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sa
 
 Bấm **Ctrl + Shift + C** (trên Mac cũng là phím **Control**, không phải Cmd) để copy câu trả lời AI vừa đưa ra vào clipboard, rồi dán ở đâu cũng được. Phím này dùng được cả khi popup đã đóng hoặc đang ở chế độ ẩn.
 
+### Bôi đen đáp án
+
+Bấm **Ctrl + Shift + A** (trên Mac cũng là phím **Control**) để bôi đen câu trả lời trong popup. Ở chế độ ẩn, đây là cách nhanh nhất để hiện đáp án mà không phải đoán chỗ kéo chuột.
+
 ### Chế độ ẩn
 
 Bật ô **"Chế độ ẩn"** trong Cài đặt thì popup trong suốt hoàn toàn: không nền, không viền, không chữ. Đáp án luôn nằm **ngay dưới chữ vừa bôi đen, thẳng mép trái**, nên muốn xem thì bôi đen vùng trống ngay bên dưới đó (kéo 2–3 dòng là đủ), chữ sẽ hiện lên trong vùng bôi đen.

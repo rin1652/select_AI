@@ -47,7 +47,7 @@
 
       // Ctrl/Cmd + A outside text fields does nothing, so a slip of the
       // finger can't highlight (and send) the whole page.
-      if (blockSelectAll && key === "a" && !e.target.closest?.(TEXT_FIELDS)) {
+      if (blockSelectAll && key === "a" && !e.shiftKey && !e.target.closest?.(TEXT_FIELDS)) {
         e.preventDefault();
         e.stopImmediatePropagation();
         return;

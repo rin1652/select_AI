@@ -233,6 +233,8 @@
     const sel = window.getSelection();
     const text = sel ? sel.toString().trim().replace(/\s+/g, " ") : "";
     if (!text || text.length > MAX_LENGTH || sel.rangeCount === 0) return;
+    // Text selected inside our own popup is for reading, not a new question.
+    if (host && (sel.anchorNode === host || host.shadowRoot.contains(sel.anchorNode))) return;
 
     const rect = sel.getRangeAt(0).getBoundingClientRect();
     if (!rect.width && !rect.height) return;
@@ -258,7 +260,7 @@
         cancelCapture();
         closePopup();
       }
-      else if (e.shiftKey) setTimeout(handleSelection, 10);
+      else if (e.shiftKey && !e.ctrlKey && !e.metaKey) setTimeout(handleSelection, 10);
     },
     true
   );
@@ -371,6 +373,26 @@
       e.preventDefault();
       e.stopImmediatePropagation();
       copyText(lastAnswer);
+    },
+    true
+  );
+
+  // Ctrl + Shift + A: highlight the answer inside the popup (reveals it in hidden mode).
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      const isA = e.code === "KeyA" || e.key?.toLowerCase() === "a";
+      if (!isA || !e.ctrlKey || !e.shiftKey || e.altKey || e.metaKey) return;
+      const answer = host?.shadowRoot.querySelector(".answer, .error");
+      if (!answer) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      const range = document.createRange();
+      range.selectNodeContents(answer);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
     },
     true
   );
