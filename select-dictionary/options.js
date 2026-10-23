@@ -74,6 +74,14 @@ $("save").addEventListener("click", async () => {
   setStatus("Đã lưu. Bôi đen một câu hỏi trên trang để thử.", "ok");
 });
 
+// Toggles take effect right away, without pressing Save.
+for (const id of ["unlockSelection", "blockSelectAll", "hiddenMode", "hiddenOutline"]) {
+  $(id).addEventListener("change", async () => {
+    await chrome.storage.local.set({ [id]: $(id).checked });
+    setStatus("Đã lưu. Tải lại (F5) các tab đang mở để áp dụng.", "ok");
+  });
+}
+
 $("test").addEventListener("click", async () => {
   const form = currentForm();
   if (!form.apiKey) {
