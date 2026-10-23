@@ -7,6 +7,7 @@ const DEFAULT_SYSTEM_PROMPT =
   "Trả lời bằng ngôn ngữ của câu hỏi.";
 
 const FALLBACK_MODELS = {
+  shopaikey: ["gpt-6.1-sol"],
   openai: ["gpt-5-mini", "gpt-5", "gpt-4.1-mini", "gpt-4.1", "gpt-4o-mini", "gpt-4o"],
   google: ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.0-flash"],
 };

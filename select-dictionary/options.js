@@ -1,6 +1,7 @@
 const $ = (id) => document.getElementById(id);
 
 const KEY_HINTS = {
+  shopaikey: "(key ShopAIKey · https://api.shopaikey.com/v1)",
   openai: "(lấy tại platform.openai.com/api-keys)",
   google: "(lấy tại aistudio.google.com/apikey)",
 };
