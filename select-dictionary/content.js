@@ -31,26 +31,28 @@
       border: 1px solid #e6e0a8;
       border-radius: 6px;
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
-      font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font: 7.5px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
       text-align: left;
     }
     .head { display: flex; align-items: center; gap: 8px; }
-    .word { font-size: 20px; font-weight: 700; word-break: break-word; }
+    .word { font-size: 10px; font-weight: 400; word-break: break-word; }
     .speak {
       border: 0; background: none; cursor: pointer; padding: 2px;
       display: inline-flex; color: #222;
     }
     .speak:hover { color: #0b63ce; }
-    .phonetic { color: #666; font-size: 14px; margin-top: 2px; }
+    .phonetic { color: #666; font-size: 7px; margin-top: 2px; }
     .meaning { margin-top: 8px; }
-    .pos { font-style: italic; color: #7a6a00; font-size: 13px; }
-    .example { color: #555; font-style: italic; font-size: 13px; margin-top: 2px; }
+    .pos { font-style: italic; color: #7a6a00; font-size: 6.5px; }
+    .example { color: #555; font-style: italic; font-size: 6.5px; margin-top: 2px; }
     .vi {
       margin-top: 10px; padding-top: 8px;
       border-top: 1px dashed #e0d98f; color: #0b4f9c;
     }
-    .vi-label { font-size: 12px; color: #888; margin-right: 4px; }
-    .muted { color: #888; font-size: 14px; margin-top: 6px; }
+    .vi-label { font-size: 6px; color: #888; margin-right: 4px; }
+    .muted { color: #888; font-size: 7px; margin-top: 6px; }
 
     /* Invisible mode: nothing shows until the user selects text inside the popup. */
     .card.hidden-mode,
@@ -70,10 +72,10 @@
       background: #3a7bd5;
     }
     .answer { white-space: pre-wrap; word-break: break-word; max-height: 50vh; overflow: auto; }
-    .error { color: #c0362c; font-size: 14px; }
+    .error { color: #c0362c; font-size: 7px; }
     .settings {
       border: 0; background: none; cursor: pointer; padding: 0;
-      color: #0b63ce; font: inherit; font-size: 13px; margin-top: 8px;
+      color: #0b63ce; font: inherit; font-size: 6.5px; margin-top: 8px;
     }
   `;
 
