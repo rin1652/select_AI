@@ -65,7 +65,7 @@ Các tab đã mở từ trước khi cài cần được tải lại (F5) thì t
 
 Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sau vài giây sẽ hiện đáp án.
 
-- Đóng popup: bấm **×**, click ra ngoài, nhấn **Esc** hoặc cuộn trang.
+- Đóng popup: click ra ngoài, nhấn **Esc** hoặc cuộn trang.
 - Bôi đen bằng bàn phím (Shift + phím mũi tên) cũng được.
 
 ### Chế độ ẩn

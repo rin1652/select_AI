@@ -23,13 +23,7 @@
       font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       text-align: left;
     }
-    .close {
-      position: absolute; top: 6px; right: 8px;
-      border: 0; background: none; cursor: pointer;
-      font-size: 18px; line-height: 1; color: #999; padding: 2px;
-    }
-    .close:hover { color: #333; }
-    .head { display: flex; align-items: center; gap: 8px; padding-right: 18px; }
+    .head { display: flex; align-items: center; gap: 8px; }
     .word { font-size: 20px; font-weight: 700; word-break: break-word; }
     .speak {
       border: 0; background: none; cursor: pointer; padding: 2px;
@@ -59,9 +53,8 @@
       color: #fff;
       background: #3a7bd5;
     }
-    .ai-label { font-size: 12px; color: #7a6a00; text-transform: uppercase; letter-spacing: 0.04em; }
-    .answer { margin-top: 6px; white-space: pre-wrap; word-break: break-word; max-height: 50vh; overflow: auto; }
-    .error { margin-top: 6px; color: #c0362c; font-size: 14px; }
+    .answer { white-space: pre-wrap; word-break: break-word; max-height: 50vh; overflow: auto; }
+    .error { color: #c0362c; font-size: 14px; }
     .settings {
       border: 0; background: none; cursor: pointer; padding: 0;
       color: #0b63ce; font: inherit; font-size: 13px; margin-top: 8px;
@@ -144,10 +137,7 @@
 
   function render(card, text, res) {
     if (!res) {
-      card.innerHTML = `
-        <button class="close" title="Đóng">×</button>
-        <div class="muted">Đang tra…</div>`;
-      card.querySelector(".close").addEventListener("click", closePopup);
+      card.innerHTML = `<div class="muted">Đang tra…</div>`;
       return;
     }
     if (res.mode === "ai") {
@@ -183,14 +173,12 @@
     }
 
     card.innerHTML = `
-      <button class="close" title="Đóng">×</button>
       <div class="head">
         <span class="word">${escapeHtml(title.length > 60 ? title.slice(0, 60) + "…" : title)}</span>
         <button class="speak" title="Phát âm">${SPEAKER_SVG}</button>
       </div>
       ${body}`;
 
-    card.querySelector(".close").addEventListener("click", closePopup);
     card.querySelector(".speak").addEventListener("click", () =>
       speak(title, def?.audio)
     );
@@ -202,12 +190,7 @@
          <button class="settings">Mở cài đặt</button>`
       : `<div class="answer">${escapeHtml(res.answer || "(không có câu trả lời)")}</div>`;
 
-    card.innerHTML = `
-      <button class="close" title="Đóng">×</button>
-      <div class="ai-label">Đáp án${res.model ? ` · ${escapeHtml(res.model)}` : ""}</div>
-      ${body}`;
-
-    card.querySelector(".close").addEventListener("click", closePopup);
+    card.innerHTML = body;
     card.querySelector(".settings")?.addEventListener("click", () =>
       chrome.runtime.sendMessage({ type: "openOptions" })
     );
