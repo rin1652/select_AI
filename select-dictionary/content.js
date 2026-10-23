@@ -86,6 +86,9 @@
 
   let host = null;
   let requestId = 0;
+  let port = null;
+  // Wait this long after a selection before asking, so a quick mis-selection costs nothing.
+  const SEND_DELAY_MS = 500;
   let hiddenMode = false;
   let lastAnswer = "";
   let hiddenOutline = false;
@@ -107,6 +110,9 @@
 
   function closePopup() {
     requestId++;
+    // Disconnecting aborts the AI request, so an abandoned popup stops costing tokens.
+    port?.disconnect();
+    port = null;
     if (host) {
       host.remove();
       host = null;
@@ -148,12 +154,29 @@
     if (result) return;
 
     const id = ++requestId;
-    chrome.runtime.sendMessage(message, (res) => {
+    const delay = message.type === "lookup" ? SEND_DELAY_MS : 0;
+    setTimeout(() => {
       if (id !== requestId || !host) return;
-      if (chrome.runtime.lastError) res = null;
-      render(card, text, res || { definition: null, translation: "" });
-      position(card, rect);
-    });
+      port = chrome.runtime.connect({ name: "ask" });
+      port.onMessage.addListener((msg) => {
+        if (id !== requestId || !host) return;
+        if (msg.type === "delta") {
+          const answer = card.querySelector(".answer");
+          if (answer) {
+            answer.textContent = msg.text;
+          } else {
+            renderAnswer(card, { mode: "ai", answer: msg.text });
+            position(card, rect);
+          }
+          return;
+        }
+        render(card, text, msg.result);
+        position(card, rect);
+        port.disconnect();
+        port = null;
+      });
+      port.postMessage(message);
+    }, delay);
   }
 
   function render(card, text, res) {

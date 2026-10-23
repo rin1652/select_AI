@@ -5,7 +5,7 @@ const { test } = require("node:test");
 const vm = require("node:vm");
 
 function loadLLM(fetch) {
-  const context = vm.createContext({ fetch });
+  const context = vm.createContext({ fetch, TextDecoder });
   for (const file of ["settings.js", "llm.js"]) {
     vm.runInContext(readFileSync(join(__dirname, "../select-dictionary", file), "utf8"), context);
   }
@@ -77,4 +77,54 @@ test("ShopAIKey: surfaces authentication and unavailable-model errors", async ()
 test("ShopAIKey: surfaces non-JSON gateway errors", async () => {
   const llm = loadLLM(async () => new Response("Bad Gateway", { status: 502 }));
   await assert.rejects(llm.askLLM({ provider: "shopaikey", apiKey: "test", model: "gpt-6.1-sol" }, "Hello"), /HTTP 502/);
+});
+
+function sse(events) {
+  const body = events.map((e) => `data: ${typeof e === "string" ? e : JSON.stringify(e)}\n\n`).join("");
+  return new Response(body, { headers: { "content-type": "text/event-stream" } });
+}
+
+for (const [provider, baseURL] of Object.entries(endpoints)) {
+  test(`${provider}: streams the answer and reports partial text`, async () => {
+    let request;
+    const llm = loadLLM(async (url, options) => {
+      request = { url, body: JSON.parse(options.body), signal: options.signal };
+      return sse(provider === "google"
+        ? [{ candidates: [{ content: { parts: [{ text: "D. " }] } }] },
+           { candidates: [{ content: { parts: [{ text: "Workflow" }] } }] }]
+        : [{ choices: [{ delta: { content: "D. " } }] },
+           { choices: [{ delta: { content: "Workflow" } }] }, "[DONE]"]);
+    });
+    const partials = [];
+    const signal = new AbortController().signal;
+    const answer = await llm.askLLM({ provider, apiKey: "k", model: "m", systemPrompt: "s" }, "q", undefined,
+      { signal, onDelta: (t) => partials.push(t) });
+
+    assert.equal(answer, "D. Workflow");
+    assert.deepEqual(partials, ["D. ", "D. Workflow"]);
+    assert.equal(request.signal, signal);
+    if (provider === "google") {
+      assert.equal(request.url, `${baseURL}/models/m:streamGenerateContent?alt=sse`);
+    } else {
+      assert.equal(request.body.stream, true);
+    }
+  });
+}
+
+test("streaming falls back to a plain JSON reply when the gateway ignores stream", async () => {
+  const llm = loadLLM(async () => Response.json({ choices: [{ message: { content: " B " } }] }));
+  const answer = await llm.askLLM({ provider: "shopaikey", apiKey: "k", model: "m" }, "q", undefined,
+    { onDelta: () => {} });
+  assert.equal(answer, "B");
+});
+
+test("aborting the signal cancels the request", async () => {
+  const llm = loadLLM((url, { signal }) => new Promise((_, reject) => {
+    signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+  }));
+  const controller = new AbortController();
+  const pending = llm.askLLM({ provider: "openai", apiKey: "k", model: "m" }, "q", undefined,
+    { signal: controller.signal });
+  controller.abort();
+  await assert.rejects(pending, { name: "AbortError" });
 });

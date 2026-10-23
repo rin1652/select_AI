@@ -41,16 +41,21 @@ async function lookupDictionary(text) {
   return { mode: "dictionary", definition, translation };
 }
 
-async function lookup(text) {
-  const settings = await loadSettings();
-  if (!settings.apiKey) return lookupDictionary(text);
-
+// `opts` = { signal, onDelta } from askLLM; an aborted request returns null.
+async function askAI(settings, text, image, opts) {
   try {
-    const answer = await askLLM(settings, text);
+    const answer = await askLLM(settings, text, image, opts);
     return { mode: "ai", model: settings.model, answer };
   } catch (e) {
+    if (opts.signal?.aborted) return null;
     return { mode: "ai", model: settings.model, error: e.message };
   }
+}
+
+async function lookup(text, opts) {
+  const settings = await loadSettings();
+  if (!settings.apiKey) return lookupDictionary(text);
+  return askAI(settings, text, undefined, opts);
 }
 
 const IMAGE_QUESTION = "Trả lời câu hỏi trong ảnh.";
@@ -80,17 +85,12 @@ async function captureRegion(windowId, { rect, viewportWidth }) {
   return blobToBase64(await canvas.convertToBlob({ type: "image/png" }));
 }
 
-async function askAboutImage(image) {
+async function askAboutImage(image, opts) {
   const settings = await loadSettings();
   if (!settings.apiKey) {
     return { mode: "ai", model: "", error: "Cần nhập API key trong cài đặt để phân tích ảnh." };
   }
-  try {
-    const answer = await askLLM(settings, IMAGE_QUESTION, image);
-    return { mode: "ai", model: settings.model, answer };
-  } catch (e) {
-    return { mode: "ai", model: settings.model, error: e.message };
-  }
+  return askAI(settings, IMAGE_QUESTION, image, opts);
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -98,18 +98,32 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case "openOptions":
       chrome.runtime.openOptionsPage();
       return;
-    case "lookup":
-      lookup(msg.text).then(sendResponse);
-      return true; // keep the channel open for the async response
     case "captureRegion":
       captureRegion(sender.tab.windowId, msg)
         .then((image) => sendResponse({ image }))
         .catch((e) => sendResponse({ error: e.message }));
-      return true;
-    case "askImage":
-      askAboutImage(msg.image).then(sendResponse);
-      return true;
+      return true; // keep the channel open for the async response
   }
+});
+
+// Each popup opens an "ask" port. Closing the popup disconnects it, which
+// aborts the request so the provider stops generating (and billing) tokens.
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== "ask") return;
+  const controller = new AbortController();
+  let open = true;
+  port.onDisconnect.addListener(() => {
+    open = false;
+    controller.abort();
+  });
+  const post = (msg) => open && port.postMessage(msg);
+
+  port.onMessage.addListener(async (msg) => {
+    const opts = { signal: controller.signal, onDelta: (text) => post({ type: "delta", text }) };
+    const result =
+      msg.type === "askImage" ? await askAboutImage(msg.image, opts) : await lookup(msg.text, opts);
+    if (result) post({ type: "done", result });
+  });
 });
 
 // The shortcut works even when the page blocks selection or key events,
