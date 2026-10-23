@@ -5,16 +5,18 @@
   window.__selectDictionaryLoaded = true;
 
   const MAX_LENGTH = 4000;
-  const IS_MAC = /Mac/i.test(navigator.userAgentData?.platform || navigator.platform);
 
-  // Answer shortcuts: Control + key on Mac (Cmd keeps its usual meaning),
-  // Ctrl + Shift + key on Windows (plain Ctrl + A/C are select-all/copy there).
-  function isAnswerShortcut(e, letter) {
-    const isLetter = e.code === `Key${letter.toUpperCase()}` || e.key?.toLowerCase() === letter;
-    if (!isLetter || !e.ctrlKey || e.altKey || e.metaKey) return false;
-    if (!IS_MAC) return e.shiftKey;
-    // Control + A/E… move the caret in Mac text fields; leave those alone.
-    return e.shiftKey || !e.target.closest?.("input, textarea, [contenteditable]");
+  // Shortcuts are configurable in the settings page (see shortcuts.js).
+  let shortcuts = SDShortcuts.defaults();
+  let cardClickModifier = "alt";
+
+  function shortcutPressed(e, name) {
+    const sc = shortcuts[name];
+    if (!SDShortcuts.matches(e, sc)) return false;
+    // In text fields, Control-only (Mac) or unmodified combos are editing keys; leave them.
+    const inTextField = e.target.closest?.("input, textarea, [contenteditable]");
+    const editingKey = !sc.shift && !sc.alt && !sc.meta && (SDShortcuts.IS_MAC || !sc.ctrl);
+    return !(inTextField && editingKey);
   }
 
   const STYLE = `
@@ -96,15 +98,21 @@
   let hiddenOutline = false;
   let fontSize = 7.5;
 
-  chrome.storage.local.get({ hiddenMode: false, hiddenOutline: false, fontSize: 7.5 }).then((s) => {
-    hiddenMode = s.hiddenMode;
-    hiddenOutline = s.hiddenOutline;
-    fontSize = s.fontSize;
-  });
+  chrome.storage.local
+    .get({ hiddenMode: false, hiddenOutline: false, fontSize: 7.5, shortcuts: {}, cardClickModifier: "alt" })
+    .then((s) => {
+      shortcuts = { ...SDShortcuts.defaults(), ...s.shortcuts };
+      cardClickModifier = s.cardClickModifier;
+      hiddenMode = s.hiddenMode;
+      hiddenOutline = s.hiddenOutline;
+      fontSize = s.fontSize;
+    });
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.hiddenMode) hiddenMode = changes.hiddenMode.newValue;
     if (changes.hiddenOutline) hiddenOutline = changes.hiddenOutline.newValue;
     if (changes.fontSize) fontSize = changes.fontSize.newValue;
+    if (changes.shortcuts) shortcuts = { ...SDShortcuts.defaults(), ...changes.shortcuts.newValue };
+    if (changes.cardClickModifier) cardClickModifier = changes.cardClickModifier.newValue;
   });
 
   function escapeHtml(s) {
@@ -115,6 +123,7 @@
 
   function closePopup() {
     requestId++;
+    anchor = null;
     // Disconnecting aborts the AI request, so an abandoned popup stops costing tokens.
     port?.disconnect();
     port = null;
@@ -142,8 +151,21 @@
 
   // `message` is sent to the background worker and its reply fills the popup;
   // pass `result` instead to show something without asking.
-  function showPopup(rect, message, result) {
+  // Where the popup hangs from, re-measured on scroll so it follows the question.
+  let anchor = null;
+
+  // `anchorRange` (optional) is the selected text; without it the popup stays put
+  // relative to the page at `rect`.
+  function showPopup(rect, message, result, anchorRange) {
     closePopup();
+    const scrolled = { x: window.scrollX, y: window.scrollY };
+    anchor = anchorRange
+      ? () => anchorRange.getBoundingClientRect()
+      : () => {
+          const dx = scrolled.x - window.scrollX;
+          const dy = scrolled.y - window.scrollY;
+          return { left: rect.left + dx, right: rect.right + dx, top: rect.top + dy, bottom: rect.bottom + dy };
+        };
     const text = message?.text || "";
 
     host = document.createElement("div");
@@ -157,7 +179,7 @@
     document.documentElement.appendChild(host);
 
     render(card, text, result || null);
-    position(card, rect);
+    position(card, anchor());
     if (result) return;
 
     const id = ++requestId;
@@ -173,12 +195,12 @@
             answer.textContent = msg.text;
           } else {
             renderAnswer(card, { mode: "ai", answer: msg.text });
-            position(card, rect);
+            position(card, anchor());
           }
           return;
         }
         render(card, text, msg.result);
-        position(card, rect);
+        position(card, anchor());
         port.disconnect();
         port = null;
       });
@@ -277,9 +299,10 @@
     // Text selected inside our own popup is for reading, not a new question.
     if (host && (sel.anchorNode === host || host.shadowRoot.contains(sel.anchorNode))) return;
 
-    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    const range = sel.getRangeAt(0).cloneRange();
+    const rect = range.getBoundingClientRect();
     if (!rect.width && !rect.height) return;
-    showPopup(rect, { type: "lookup", text });
+    showPopup(rect, { type: "lookup", text }, undefined, range);
   }
 
   // Capture phase on window so pages that stop event propagation can't hide it.
@@ -314,7 +337,20 @@
     true
   );
 
-  window.addEventListener("scroll", () => host && closePopup(), true);
+  // Keep the popup next to its question while the page (or any inner box) scrolls;
+  // hide it while the question is off screen instead of closing (and cancelling) it.
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!host || !anchor) return;
+      const card = host.shadowRoot.querySelector(".card");
+      const r = anchor();
+      const onScreen = r.bottom > 0 && r.top < window.innerHeight;
+      card.style.visibility = onScreen ? "" : "hidden";
+      if (onScreen) position(card, r);
+    },
+    { capture: true, passive: true }
+  );
 
   // ---- Select the whole card (question + options) at once ----
 
@@ -358,9 +394,10 @@
     sel.addRange(range);
   }
 
-  // Alt/Option + click.
+  // Modifier + click (Alt/Option by default; "none" turns it off).
+  const CLICK_MODIFIERS = { alt: "altKey", ctrl: "ctrlKey", shift: "shiftKey", meta: "metaKey" };
   const wantsCardClick = (e) =>
-    e.altKey && !(host && e.composedPath().includes(host));
+    Boolean(e[CLICK_MODIFIERS[cardClickModifier]]) && !(host && e.composedPath().includes(host));
 
   window.addEventListener(
     "mousedown",
@@ -408,7 +445,7 @@
   window.addEventListener(
     "keydown",
     (e) => {
-      if (!isAnswerShortcut(e, "c")) return;
+      if (!shortcutPressed(e, "copyAnswer")) return;
       if (!lastAnswer) return;
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -421,7 +458,7 @@
   window.addEventListener(
     "keydown",
     (e) => {
-      if (!isAnswerShortcut(e, "a")) return;
+      if (!shortcutPressed(e, "selectAnswer")) return;
       const answer = host?.shadowRoot.querySelector(".answer, .error");
       if (!answer) return;
       e.preventDefault();
@@ -450,8 +487,7 @@
   window.addEventListener(
     "keydown",
     (e) => {
-      const isBackquote = e.code === "Backquote" || e.key === "`";
-      if (!isBackquote || !(e.metaKey || e.ctrlKey) || e.repeat) return;
+      if (!shortcutPressed(e, "selectCard") || e.repeat) return;
       if (!pointer || overlay) return;
       e.preventDefault();
       e.stopImmediatePropagation();

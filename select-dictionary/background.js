@@ -135,7 +135,7 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
     await chrome.tabs.sendMessage(tab.id, msg, { frameId: 0 });
   } catch {
     // Tab was opened before the extension was installed/reloaded: inject now.
-    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] });
+    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["shortcuts.js", "content.js"] });
     await chrome.tabs.sendMessage(tab.id, msg, { frameId: 0 });
   }
 });

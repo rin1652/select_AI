@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Select Dictionary",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "Bôi đen câu hỏi để AI (OpenAI/ShopAIKey/Gemini) trả lời ngắn gọn, hoặc tra từ điển khi chưa có API key.",
   "permissions": [
     "storage",
@@ -40,6 +40,7 @@
         "<all_urls>"
       ],
       "js": [
+        "shortcuts.js",
         "unlock.js"
       ],
       "all_frames": true,
@@ -51,6 +52,7 @@
         "<all_urls>"
       ],
       "js": [
+        "shortcuts.js",
         "content.js"
       ],
       "all_frames": true,

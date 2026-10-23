@@ -69,7 +69,7 @@ Các tab đã mở từ trước khi cài cần được tải lại (F5) thì t
 
 Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sau vài giây sẽ hiện đáp án.
 
-- Đóng popup: click ra ngoài, nhấn **Esc** hoặc cuộn trang.
+- Đóng popup: click ra ngoài hoặc nhấn **Esc**. Khi cuộn trang, popup đi theo câu hỏi (tạm ẩn khi câu hỏi trôi khỏi màn hình), không bị mất.
 - Đáp án hiện dần từng chữ trong lúc AI đang trả lời.
 - **Cỡ chữ:** kéo thanh **"Cỡ chữ đáp án"** trong Cài đặt (4–24px, mặc định 7.5px). Cài đặt lưu ngay, áp dụng cho popup tiếp theo.
 - **Tiết kiệm token:** extension chờ khoảng 0,5 giây sau khi bôi đen rồi mới gửi câu hỏi, nên bôi nhầm rồi bỏ ngay thì không tốn gì. Nếu đóng popup khi AI đang trả lời dở, request bị huỷ và AI dừng sinh phần còn lại (phần câu hỏi đã gửi đi vẫn bị tính).
@@ -116,6 +116,20 @@ Nhấn **Esc** để huỷ.
 
 Muốn đổi phím tắt thì vào trang Cài đặt và bấm **Đổi phím tắt**, hoặc mở `brave://extensions/shortcuts` (Chrome là `chrome://extensions/shortcuts`).
 
+## Đổi phím tắt
+
+Mọi phím tắt đều đổi được trong trang **Cài đặt → Phím tắt**: bấm vào ô phím tắt, nhấn tổ hợp mới (phải có Ctrl, Cmd hoặc Alt/Option), lưu ngay. Cũng chọn được phím giữ khi click để bôi đen nguyên thẻ (Alt/Option, Ctrl, Shift, Cmd/Win hoặc tắt). Nút **Khôi phục phím tắt mặc định** đưa mọi thứ về như ban đầu.
+
+| Chức năng | Mặc định macOS | Mặc định Windows |
+| --- | --- | --- |
+| Bôi đen nguyên thẻ câu hỏi đang trỏ chuột | Cmd + ` | Ctrl + ` |
+| Bôi đen đáp án trong popup | Control + A | Ctrl + Shift + A |
+| Copy đáp án | Control + C | Ctrl + Shift + C |
+| Giữ khi click để bôi đen nguyên thẻ | Option | Alt |
+| Chụp câu hỏi | Cmd + Shift + S | Ctrl + Shift + S |
+
+Riêng phím **chụp câu hỏi** do trình duyệt quản lý, nên đổi ở `brave://extensions/shortcuts` (nút **Đổi phím tắt** trong Cài đặt mở trang này).
+
 ## Xử lý sự cố
 
 | Hiện tượng | Cách xử lý |
@@ -149,6 +163,7 @@ select-dictionary/
 ├── background.js   # Gọi API, chụp màn hình, xử lý phím tắt
 ├── content.js      # Bắt bôi đen, khung chụp, popup đáp án
 ├── unlock.js       # Mở khoá bôi đen / copy / chuột phải
+├── shortcuts.js    # Phím tắt tuỳ chỉnh (dùng chung)
 ├── llm.js          # Gọi OpenAI / ShopAIKey / Gemini (văn bản + ảnh)
 ├── settings.js     # Giá trị mặc định, system prompt
 ├── options.html    # Trang cài đặt

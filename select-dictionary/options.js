@@ -116,6 +116,92 @@ chrome.commands.getAll().then((commands) => {
   $("shortcut").textContent = capture?.shortcut || "Chưa đặt – bấm Đổi phím tắt";
 });
 
+// ---- Shortcuts ----
+
+let shortcuts = SDShortcuts.defaults();
+
+const CLICK_MODIFIER_LABELS = SDShortcuts.IS_MAC
+  ? { alt: "Option", ctrl: "Control", shift: "Shift", meta: "Cmd", none: "Tắt" }
+  : { alt: "Alt", ctrl: "Ctrl", shift: "Shift", meta: "Win", none: "Tắt" };
+
+for (const [value, text] of Object.entries(CLICK_MODIFIER_LABELS)) {
+  const opt = document.createElement("option");
+  opt.value = value;
+  opt.textContent = text;
+  $("cardClickModifier").appendChild(opt);
+}
+
+function showShortcuts() {
+  for (const btn of document.querySelectorAll("button.record")) {
+    btn.textContent = SDShortcuts.label(shortcuts[btn.dataset.name]);
+    btn.classList.remove("listening");
+  }
+}
+
+let recording = null; // the button waiting for a key combo
+
+function stopRecording() {
+  recording = null;
+  window.removeEventListener("keydown", onRecordKey, true);
+  showShortcuts();
+}
+
+async function onRecordKey(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (e.key === "Escape") {
+    stopRecording();
+    return;
+  }
+  const sc = SDShortcuts.fromEvent(e);
+  if (!sc) return; // only modifiers held so far
+  if (!sc.ctrl && !sc.meta && !sc.alt) {
+    setStatus("Phím tắt cần có Ctrl, Cmd hoặc Alt/Option để không lẫn với gõ chữ.", "err");
+    return;
+  }
+  const name = recording.dataset.name;
+  const clash = Object.entries(shortcuts).find(
+    ([other, value]) => other !== name && SDShortcuts.label(value) === SDShortcuts.label(sc)
+  );
+  if (clash) {
+    setStatus(`${SDShortcuts.label(sc)} đang dùng cho chức năng khác.`, "err");
+    return;
+  }
+  shortcuts = { ...shortcuts, [name]: sc };
+  await chrome.storage.local.set({ shortcuts });
+  stopRecording();
+  setStatus(`Đã đặt ${SDShortcuts.label(sc)}.`, "ok");
+}
+
+for (const btn of document.querySelectorAll("button.record")) {
+  btn.addEventListener("click", () => {
+    if (recording) stopRecording();
+    recording = btn;
+    btn.textContent = "Nhấn tổ hợp phím…";
+    btn.classList.add("listening");
+    window.addEventListener("keydown", onRecordKey, true);
+  });
+}
+
+$("cardClickModifier").addEventListener("change", async () => {
+  await chrome.storage.local.set({ cardClickModifier: $("cardClickModifier").value });
+  setStatus("Đã lưu.", "ok");
+});
+
+$("resetShortcuts").addEventListener("click", async () => {
+  shortcuts = SDShortcuts.defaults();
+  $("cardClickModifier").value = "alt";
+  await chrome.storage.local.set({ shortcuts, cardClickModifier: "alt" });
+  showShortcuts();
+  setStatus("Đã khôi phục phím tắt mặc định.", "ok");
+});
+
+chrome.storage.local.get({ shortcuts: {}, cardClickModifier: "alt" }).then((s) => {
+  shortcuts = { ...SDShortcuts.defaults(), ...s.shortcuts };
+  $("cardClickModifier").value = s.cardClickModifier;
+  showShortcuts();
+});
+
 $("resetPrompt").addEventListener("click", () => {
   $("systemPrompt").value = DEFAULT_SYSTEM_PROMPT;
 });

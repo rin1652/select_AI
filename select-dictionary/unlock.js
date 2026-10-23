@@ -2,8 +2,8 @@
 // Runs at document_start so our window capture listeners fire before the page's.
 (() => {
   let enabled = true;
-  // Select-all/copy/cut use Cmd on Mac and Ctrl elsewhere.
-  const IS_MAC = /Mac/i.test(navigator.userAgentData?.platform || navigator.platform);
+  // Our own shortcuts (content.js) must get through these key handlers.
+  let shortcuts = SDShortcuts.defaults();
   let blockSelectAll = true;
 
   const BLOCKED_EVENTS = ["selectstart", "copy", "cut", "contextmenu", "dragstart"];
@@ -44,7 +44,9 @@
   window.addEventListener(
     "keydown",
     (e) => {
-      if (!(IS_MAC ? e.metaKey : e.ctrlKey)) return;
+      if (Object.values(shortcuts).some((sc) => SDShortcuts.matches(e, sc))) return;
+      // Select-all/copy/cut use Cmd on Mac and Ctrl elsewhere.
+      if (!(SDShortcuts.IS_MAC ? e.metaKey : e.ctrlKey)) return;
       const key = e.key.toLowerCase();
 
       // Cmd/Ctrl + A outside text fields does nothing, so a slip of the
@@ -64,7 +66,8 @@
   // Pages often swap out <head> contents while loading; re-attach once it's ready.
   document.addEventListener("DOMContentLoaded", applyCss);
 
-  chrome.storage.local.get({ unlockSelection: true, blockSelectAll: true }).then((s) => {
+  chrome.storage.local.get({ unlockSelection: true, blockSelectAll: true, shortcuts: {} }).then((s) => {
+    shortcuts = { ...SDShortcuts.defaults(), ...s.shortcuts };
     enabled = s.unlockSelection;
     blockSelectAll = s.blockSelectAll;
     applyCss();
@@ -76,5 +79,6 @@
       applyCss();
     }
     if (changes.blockSelectAll) blockSelectAll = changes.blockSelectAll.newValue;
+    if (changes.shortcuts) shortcuts = { ...SDShortcuts.defaults(), ...changes.shortcuts.newValue };
   });
 })();
