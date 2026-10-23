@@ -5,6 +5,17 @@
   window.__selectDictionaryLoaded = true;
 
   const MAX_LENGTH = 4000;
+  const IS_MAC = /Mac/i.test(navigator.userAgentData?.platform || navigator.platform);
+
+  // Answer shortcuts: Control + key on Mac (Cmd keeps its usual meaning),
+  // Ctrl + Shift + key on Windows (plain Ctrl + A/C are select-all/copy there).
+  function isAnswerShortcut(e, letter) {
+    const isLetter = e.code === `Key${letter.toUpperCase()}` || e.key?.toLowerCase() === letter;
+    if (!isLetter || !e.ctrlKey || e.altKey || e.metaKey) return false;
+    if (!IS_MAC) return e.shiftKey;
+    // Control + A/E… move the caret in Mac text fields; leave those alone.
+    return e.shiftKey || !e.target.closest?.("input, textarea, [contenteditable]");
+  }
 
   const STYLE = `
     :host { all: initial; }
@@ -348,7 +359,7 @@
     true
   );
 
-  // Ctrl + Shift + C: copy the latest AI answer to the clipboard.
+  // Control + C (Mac) / Ctrl + Shift + C (Windows): copy the latest AI answer.
   async function copyText(text) {
     try {
       await navigator.clipboard.writeText(text);
@@ -367,8 +378,7 @@
   window.addEventListener(
     "keydown",
     (e) => {
-      const isC = e.code === "KeyC" || e.key?.toLowerCase() === "c";
-      if (!isC || !e.ctrlKey || !e.shiftKey || e.altKey || e.metaKey) return;
+      if (!isAnswerShortcut(e, "c")) return;
       if (!lastAnswer) return;
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -377,12 +387,11 @@
     true
   );
 
-  // Ctrl + Shift + A: highlight the answer inside the popup (reveals it in hidden mode).
+  // Control + A (Mac) / Ctrl + Shift + A (Windows): highlight the answer in the popup.
   window.addEventListener(
     "keydown",
     (e) => {
-      const isA = e.code === "KeyA" || e.key?.toLowerCase() === "a";
-      if (!isA || !e.ctrlKey || !e.shiftKey || e.altKey || e.metaKey) return;
+      if (!isAnswerShortcut(e, "a")) return;
       const answer = host?.shadowRoot.querySelector(".answer, .error");
       if (!answer) return;
       e.preventDefault();

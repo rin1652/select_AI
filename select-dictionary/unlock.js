@@ -2,6 +2,8 @@
 // Runs at document_start so our window capture listeners fire before the page's.
 (() => {
   let enabled = true;
+  // Select-all/copy/cut use Cmd on Mac and Ctrl elsewhere.
+  const IS_MAC = /Mac/i.test(navigator.userAgentData?.platform || navigator.platform);
   let blockSelectAll = true;
 
   const BLOCKED_EVENTS = ["selectstart", "copy", "cut", "contextmenu", "dragstart"];
@@ -42,10 +44,10 @@
   window.addEventListener(
     "keydown",
     (e) => {
-      if (!(e.ctrlKey || e.metaKey)) return;
+      if (!(IS_MAC ? e.metaKey : e.ctrlKey)) return;
       const key = e.key.toLowerCase();
 
-      // Ctrl/Cmd + A outside text fields does nothing, so a slip of the
+      // Cmd/Ctrl + A outside text fields does nothing, so a slip of the
       // finger can't highlight (and send) the whole page.
       if (blockSelectAll && key === "a" && !e.shiftKey && !e.target.closest?.(TEXT_FIELDS)) {
         e.preventDefault();
