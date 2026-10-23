@@ -71,6 +71,7 @@ Bôi đen câu hỏi rồi thả chuột. Popup hiện **"Đang tra…"** và sa
 
 - Đóng popup: click ra ngoài, nhấn **Esc** hoặc cuộn trang.
 - Đáp án hiện dần từng chữ trong lúc AI đang trả lời.
+- **Cỡ chữ:** kéo thanh **"Cỡ chữ đáp án"** trong Cài đặt (4–24px, mặc định 7.5px). Cài đặt lưu ngay, áp dụng cho popup tiếp theo.
 - **Tiết kiệm token:** extension chờ khoảng 0,5 giây sau khi bôi đen rồi mới gửi câu hỏi, nên bôi nhầm rồi bỏ ngay thì không tốn gì. Nếu đóng popup khi AI đang trả lời dở, request bị huỷ và AI dừng sinh phần còn lại (phần câu hỏi đã gửi đi vẫn bị tính).
 
 ### Bôi đen cả thẻ câu hỏi

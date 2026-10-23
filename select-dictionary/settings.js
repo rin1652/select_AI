@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS = {
   unlockSelection: true,
   hiddenMode: false,
   hiddenOutline: false,
+  fontSize: 7.5,
   blockSelectAll: true,
 };
 

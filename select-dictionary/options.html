@@ -34,6 +34,9 @@
     textarea { min-height: 120px; resize: vertical; }
     label.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; cursor: pointer; }
     label.check input { width: auto; margin: 4px 0 0; }
+    .row.size { align-items: center; }
+    .row.size input { flex: 1; padding: 0; }
+    .row.size output { min-width: 56px; text-align: right; font-variant-numeric: tabular-nums; }
     kbd {
       flex: 1;
       padding: 9px 10px;
@@ -105,6 +108,12 @@
     </label>
 
     <p class="hint">Mẹo: đưa chuột vào thẻ câu hỏi rồi bấm <b>Cmd + `</b> (Mac) / <b>Ctrl + `</b> (Windows), hoặc giữ <b>Option</b>/<b>Alt</b> rồi click, để bôi đen cả câu hỏi lẫn đáp án.</p>
+
+    <label for="fontSize">Cỡ chữ đáp án <span class="hint">(px, lưu ngay khi kéo)</span></label>
+    <div class="row size">
+      <input id="fontSize" type="range" min="4" max="24" step="0.5">
+      <output id="fontSizeValue"></output>
+    </div>
 
     <label>Phím tắt chụp câu hỏi <span class="hint">(dùng khi trang chặn bôi đen: bấm phím tắt, click để chụp cả màn hình hoặc kéo chuột quanh câu hỏi, AI đọc ảnh và trả lời; model cần hỗ trợ ảnh)</span></label>
     <div class="row">

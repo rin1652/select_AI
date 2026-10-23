@@ -31,6 +31,7 @@ function currentForm() {
     unlockSelection: $("unlockSelection").checked,
     hiddenMode: $("hiddenMode").checked,
     hiddenOutline: $("hiddenOutline").checked,
+    fontSize: Number($("fontSize").value),
     blockSelectAll: $("blockSelectAll").checked,
   };
 }
@@ -72,6 +73,15 @@ $("save").addEventListener("click", async () => {
   keys[form.provider] = form.apiKey;
   await chrome.storage.local.set({ ...form, keys });
   setStatus("Đã lưu. Bôi đen một câu hỏi trên trang để thử.", "ok");
+});
+
+function showFontSize() {
+  $("fontSizeValue").textContent = `${$("fontSize").value}px`;
+}
+
+$("fontSize").addEventListener("input", async () => {
+  showFontSize();
+  await chrome.storage.local.set({ fontSize: Number($("fontSize").value) });
 });
 
 // Toggles take effect right away, without pressing Save.
@@ -118,6 +128,8 @@ loadSettings().then((s) => {
   $("unlockSelection").checked = s.unlockSelection;
   $("hiddenMode").checked = s.hiddenMode;
   $("hiddenOutline").checked = s.hiddenOutline;
+  $("fontSize").value = s.fontSize;
+  showFontSize();
   $("blockSelectAll").checked = s.blockSelectAll;
   fillModels(FALLBACK_MODELS[s.provider], s.model);
 });
