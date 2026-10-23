@@ -262,7 +262,7 @@
 
   window.addEventListener("scroll", () => host && closePopup(), true);
 
-  // ---- Alt/Option + click: select the whole card (question + options) ----
+  // ---- Select the whole card (question + options) at once ----
 
   const CARD_MAX_TEXT = 1500;
 
@@ -293,23 +293,32 @@
     return best || fallback;
   }
 
+  const TEXT_FIELDS =
+    'input:not([type="radio"]):not([type="checkbox"]), textarea, select, [contenteditable]';
+
+  function selectCard(card) {
+    const range = document.createRange();
+    range.selectNodeContents(card);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  // Alt/Option + click.
+  const wantsCardClick = (e) =>
+    e.altKey && !(host && e.composedPath().includes(host));
+
   window.addEventListener(
     "mousedown",
     (e) => {
-      if (!e.altKey || e.button !== 0 || overlay) return;
-      if (host && e.composedPath().includes(host)) return;
+      if (!wantsCardClick(e) || e.button !== 0 || overlay) return;
       const card = findCard(e.target);
       if (!card) return;
 
       // Keep the page from reacting (ticking a radio, following a link…).
       e.preventDefault();
       e.stopImmediatePropagation();
-
-      const range = document.createRange();
-      range.selectNodeContents(card);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
+      selectCard(card);
       // The mouseup listener above opens the popup for this selection.
     },
     true
@@ -318,13 +327,45 @@
   window.addEventListener(
     "click",
     (e) => {
-      if (e.altKey && !(host && e.composedPath().includes(host))) {
+      if (wantsCardClick(e)) {
         e.preventDefault();
         e.stopImmediatePropagation();
       }
     },
     true
   );
+
+  // Caps Lock: select the card under the mouse pointer, no click needed.
+  let pointer = null;
+  let lastCapsLock = 0;
+
+  window.addEventListener(
+    "mousemove",
+    (e) => {
+      pointer = { x: e.clientX, y: e.clientY };
+    },
+    { capture: true, passive: true }
+  );
+
+  function onCapsLock(e) {
+    if (e.key !== "CapsLock" || !pointer || overlay) return;
+    // macOS fires keydown when Caps Lock turns on and keyup when it turns off;
+    // Windows fires both on every press. Handle one per press.
+    if (e.timeStamp - lastCapsLock < 400) return;
+    lastCapsLock = e.timeStamp;
+    if (document.activeElement?.closest?.(TEXT_FIELDS)) return;
+
+    const target = document.elementFromPoint(pointer.x, pointer.y);
+    if (!target || target === host) return;
+    const card = findCard(target);
+    if (!card) return;
+
+    selectCard(card);
+    handleSelection();
+  }
+
+  window.addEventListener("keydown", onCapsLock, true);
+  window.addEventListener("keyup", onCapsLock, true);
 
   // ---- Shortcut capture: drag a box around the question, AI reads the screenshot ----
 
