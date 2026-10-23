@@ -18,7 +18,7 @@ Extension chưa có trên Chrome Web Store, nên cài thủ công theo cách dư
 
 Chọn một trong hai cách:
 
-- **Tải file zip:** tải [`select-dictionary-mac.zip`](https://github.com/rin1652/select_AI/raw/main/dist/select-dictionary-mac.zip) (macOS) hoặc [`select-dictionary-win.zip`](https://github.com/rin1652/select_AI/raw/main/dist/select-dictionary-win.zip) (Windows), rồi giải nén.
+- **Tải file zip:** tải [`select-dictionary.zip`](https://github.com/rin1652/select_AI/raw/main/dist/select-dictionary.zip) (dùng chung cho macOS và Windows), rồi giải nén.
 - **Clone repo:**
   ```bash
   git clone https://github.com/rin1652/select_AI.git
