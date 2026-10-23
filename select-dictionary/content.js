@@ -527,20 +527,33 @@
     return (2 * shared) / (a.length - 1 + (b.length - 1)) || 0;
   }
 
-  // Option elements inside a question card: radio/checkbox rows, list items,
-  // or blocks that start with "A." / "B)" style labels.
+  // Option elements inside a question card, trying common quiz markups in turn:
+  // radio/checkbox inputs, ARIA radios/options, list items, then "A." / "B)" rows.
   function findOptions(card) {
-    const inputs = card.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-    let options = [...inputs].map((i) => i.closest("label") || i.parentElement);
+    const hasText = (el) => Boolean(el?.innerText?.trim());
+
+    // The row around each input: its <label>, or the nearest ancestor with text.
+    const inputs = [...card.querySelectorAll('input[type="radio"], input[type="checkbox"]')];
+    let options = inputs.map((input) => {
+      let el = input.closest("label");
+      for (el = el || input.parentElement; el && el !== card && !hasText(el); el = el.parentElement);
+      return el;
+    });
+
+    if (!options.length) {
+      options = [...card.querySelectorAll('[role="radio"], [role="option"], [role="checkbox"], [role="menuitemradio"]')];
+    }
     if (!options.length) options = [...card.querySelectorAll("li")];
     if (!options.length) {
-      options = [...card.querySelectorAll("*")].filter(
-        (el) =>
-          OPTION_LABEL.test(el.innerText || "") &&
-          ![...el.children].some((child) => OPTION_LABEL.test(child.innerText || ""))
-      );
+      // A label followed by real content, keeping the innermost such element so a bare
+      // "<b>A.</b>" or the whole card can't win.
+      const LABELLED = /^\s*\(?[a-h]\s*[.):]\s*\S/i;
+      const labelled = [...card.querySelectorAll("*")].filter((el) => LABELLED.test(el.innerText || ""));
+      options = labelled.filter((el) => !labelled.some((other) => other !== el && el.contains(other)));
     }
-    return [...new Set(options)].filter((el) => el && el.innerText?.trim());
+    options = [...new Set(options)].filter((el) => el && el !== card && hasText(el));
+    // Rows that contain other rows (e.g. a wrapper around all inputs) aren't options.
+    return options.filter((el) => !options.some((other) => other !== el && el.contains(other)));
   }
 
   function highlightBestOption() {
