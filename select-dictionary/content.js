@@ -51,7 +51,8 @@
     }
     /* Optional thin outline so you can see where to select. */
     .card.hidden-mode.outline {
-      border: 1px solid #000 !important;
+      /* Thinnest line the screen can draw: 1 device pixel on Retina, 1px elsewhere. */
+      border: 0.5px solid #000 !important;
     }
     .card.hidden-mode ::selection {
       color: #fff;
